@@ -1,8 +1,7 @@
-import React, { Component } from 'react';
-import './App.css';
+import React, { Component, Fragment } from 'react';
 import { GoogleApiWrapper } from 'google-maps-react'
 import MapContainer from './components/Maps/MapContainer'
-import { ButtonLogin, ButtonLogout } from './components/Buttons/'
+import { ButtonLogin, ButtonLogout, DropDown } from './components/Buttons/'
 import { firebaseAuth, googleProvider } from './constants/config'
 
 class App extends Component {
@@ -12,7 +11,7 @@ class App extends Component {
   }
 
   handleLogin() {
-    console.log('login')    
+    console.log('login')
     loginWithGoogle()
       .catch(err => {
         console.log(err)
@@ -33,21 +32,64 @@ class App extends Component {
     });
   }
 
+  handleDropDown() {
+    let els = document.querySelectorAll('.dropdown');
+    els.forEach(el => {
+      if (el.classList.contains('is-active')) {
+        el.classList.remove('is-active');
+      } else {
+        el.classList.add('is-active');
+      }
+    })
+  }
+
   render() {
     let { user } = this.state;
 
     return (
       <div>
-        <h1> pEYU </h1>
-        {
-          user ?
-            <div>
-              <p>{user.displayName}</p>
-              <ButtonLogout text="Logout" onClick={() => this.handleLogout()} />
-            </div>
-            : <ButtonLogin onClick={() => this.handleLogin()} />
+        <section className="hero is-primary">
 
-        }
+          <div className="hero-head">
+            <nav className="navbar">
+              <div className="container">
+                <div className="navbar-brand">
+                  <a className="navbar-item">
+                    <h1 className="title">pEYU</h1>
+                  </a>
+                  <span className="navbar-burger burger" data-target="navbarMenuHeroA">
+                    {
+                      user ?
+                        <DropDown
+                          handleLogout={() => this.handleLogout()}>
+                          <img style={{ borderRadius: '50%', margin: '10%', width: '80%' }} src={user.photoURL} />
+                        </DropDown>
+                        : <ButtonLogin onClick={() => this.handleLogin()} />
+                    }
+                  </span>
+                </div>
+                <div id="navbarMenuHeroA" className="navbar-menu">
+                  <div className="navbar-end">
+                    <span className="navbar-item">
+                      {
+                        user ?
+                          <DropDown
+                            className="button"
+                            handleLogout={() => this.handleLogout()}>
+                            <span>{user.displayName}</span>
+                            <span className="icon is-small">
+                              <img style={{ borderRadius: '50%' }} src={user.photoURL} />
+                            </span>
+                          </DropDown>
+                          : <ButtonLogin onClick={() => this.handleLogin()} />
+                      }
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </nav>
+          </div>
+        </section>
         <MapContainer google={this.props.google} />
 
       </div>
@@ -63,3 +105,6 @@ const logout = () => firebaseAuth().signOut();
 export default GoogleApiWrapper({
   apiKey: 'AIzaSyCP0qBpkBupQAlZs9T8wzHEcwYg3k_qW5I',
 })(App)
+
+
+
