@@ -55,10 +55,12 @@ class MapContainer extends Component {
     let { locations, userLocation } = this.state ? this.state : {};
     let { google } = this.props ? this.props : {};
     return (
-      <div>
+    
+    <div className="card" style={style.card}>
         {
           locations && google ?
             <Map
+              className="card-content"
               style={style.map}
               initialCenter={userLocation ? userLocation : { lat: 40.7485722, lng: -74.0068633 }}
               center={userLocation ? userLocation : { lat: 40.7485722, lng: -74.0068633 }}
@@ -89,9 +91,13 @@ class MapContainer extends Component {
 
 const style = {
   map: {
-    width: '90vw',
-    height: '75vh'
-  }
+    margin: '3vh',
+  },
+  card: {
+    margin: '3vh', 
+    height: '75vh',
+  },
 }
 
 export default MapContainer;
+
