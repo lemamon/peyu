@@ -1,21 +1,31 @@
 import React, { Component } from 'react';
 import { ref, firebaseAuth } from '../../constants/config';
 import { Map, Marker } from 'google-maps-react';
-
-const loc = ref.child('locations');
+import { Modal } from '../Buttons'
 
 class MapContainer extends Component {
 
-  componentDidMount() {
-    this.currentLocation();
-    loc.once('value')
-      .then(snap => {
-        let locations = snap.val();
-        locations = Object.keys(locations).map(i => locations[i])
-        this.setState({ locations })
-      });
+  state = {
+    showModal: false,
+    locations: [],
+    occurrence: {},
+    userLocation: {
+      lat: -3.10719,
+      lng: -60.0261
+    },
   }
 
+  componentDidMount() {
+    this.currentLocation();
+    loc.on('value', snap => {
+      this.setLocations(snap.val());
+    });
+  }
+
+  setLocations(locations) {
+    locations = Object.keys(locations).map(i => locations[i]);
+    this.setState({ locations });
+  }
 
   currentLocation() {
     if (!navigator.geolocation) return;
@@ -26,54 +36,102 @@ class MapContainer extends Component {
           lat: position.coords.latitude,
           lng: position.coords.longitude,
         }
-      })
+      });
     }, error => console.log(error));
 
   }
 
-  mapClicked = (mapProps, map, clickEvent) => {
+  async mapClicked(mapProps, map, clickEvent) {
     if (!firebaseAuth().currentUser) return;
 
-    let { locations } = this.state;
+    this.setState({ showModal: true });
 
-    let newLoc = {
-      location: {
-        lat: clickEvent.latLng.lat(),
-        lng: clickEvent.latLng.lng(),
-      },
-      name: 'new',
-      type: '1'
+    let occurrence = {}
+
+    occurrence.author = firebaseAuth().currentUser.uid;
+
+    occurrence.location = {
+      lat: clickEvent.latLng.lat(),
+      lng: clickEvent.latLng.lng(),
+    }
+
+    occurrence.name = await getFormattedAddress({
+      geocoder: new mapProps.google.maps.Geocoder(),
+      latLng: new mapProps.google.maps.LatLng(occurrence.location.lat, occurrence.location.lng),
+      statusOk: mapProps.google.maps.GeocoderStatus.OK,
+    });
+
+    this.setState({ occurrence })
+
+    // this.saveData(occurrence)
+  }
+
+  saveData() {
+    this.setState({ showModal: false});
+    let { occurrence: { author, name, location }} = this.state;
+
+    let key = loc.push().key;
+    let newLoc = {};
+
+    newLoc[key] = {
+      location,
+      key,
+      name,
+      author,
+      type: '1',
     };
 
-    loc.push().set(newLoc);
+    loc.update(newLoc);
+  }
 
-    locations.push(newLoc);
-    this.setState({ locations })
+  handleModal(mod) {
+    this.setState({ showModal: mod })
   }
 
   render() {
-    let { locations, userLocation } = this.state ? this.state : {};
+    let { locations, userLocation, showModal, occurrence } = this.state;
     let { google } = this.props ? this.props : {};
+
     return (
-    
-    <div className="card" style={style.card}>
+
+      <div className="card" style={style.card}>
+        <Modal
+          handleModal={this.handleModal.bind(this)}
+          show={showModal}
+          title="Nova Ocorrência em:"
+          onSubmit={this.saveData.bind(this)}
+        >
+          <h1>{occurrence.name}</h1>
+          <hr />
+          <div className="control">
+            <input className="input" type="text" placeholder="Ponto de refencia" />
+            <input className="input" type="text" placeholder="Descricao" />
+              <div className="select">
+                <select>
+                  <option>Select dropdown</option>
+                  <option>With options</option>
+                </select>
+              </div>
+          </div>
+        </Modal>
         {
           locations && google ?
+
             <Map
               className="card-content"
               style={style.map}
-              initialCenter={userLocation ? userLocation : { lat: 40.7485722, lng: -74.0068633 }}
-              center={userLocation ? userLocation : { lat: 40.7485722, lng: -74.0068633 }}
+              initialCenter={userLocation}
+              center={userLocation}
               zoom={15}
               google={google}
-              onClick={this.mapClicked}
+              onClick={this.mapClicked.bind(this)}
             >
               {
                 locations.map((location, idx) => (
                   <Marker
                     position={location.location}
                     title={location.name}
-                    onClick={()=> console.log(location.name)}
+                    onClick={() => console.log(location.name)}
                     key={idx}
                   />)
                 )
@@ -94,9 +152,30 @@ const style = {
     margin: '3vh',
   },
   card: {
-    margin: '3vh', 
+    margin: '3vh',
     height: '75vh',
   },
+}
+
+const loc = ref.child('locations');
+
+const getFormattedAddress = ({ geocoder, latLng, statusOk }) => {
+
+  return new Promise((resolve, reject) => {
+    geocoder.geocode({
+      'latLng': latLng
+    }, (results, status) => {
+      if (status === statusOk) {
+        if (results[1]) {
+          return resolve(results[1].formatted_address)
+        } else {
+          return reject('No results found');
+        }
+      } else {
+        return reject('Geocoder failed due to: ' + status);
+      }
+    })
+  })
 }
 
 export default MapContainer;
