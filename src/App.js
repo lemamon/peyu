@@ -1,7 +1,7 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { GoogleApiWrapper } from 'google-maps-react'
 import MapContainer from './components/Maps/MapContainer'
-import { ButtonLogin, ButtonLogout, DropDown } from './components/Buttons/'
+import { ButtonLogin, DropDown } from './components/Buttons/'
 import { firebaseAuth, googleProvider } from './constants/config'
 
 class App extends Component {
@@ -32,17 +32,6 @@ class App extends Component {
     });
   }
 
-  handleDropDown() {
-    let els = document.querySelectorAll('.dropdown');
-    els.forEach(el => {
-      if (el.classList.contains('is-active')) {
-        el.classList.remove('is-active');
-      } else {
-        el.classList.add('is-active');
-      }
-    })
-  }
-
   render() {
     let { user } = this.state;
 
@@ -62,7 +51,7 @@ class App extends Component {
                       user ?
                         <DropDown
                           handleLogout={() => this.handleLogout()}>
-                          <img style={{ borderRadius: '50%', margin: '10%', width: '80%' }} src={user.photoURL} />
+                          <img alt="user avatar" style={{ borderRadius: '50%', margin: '10%', width: '80%' }} src={user.photoURL} />
                         </DropDown>
                         : <ButtonLogin onClick={() => this.handleLogin()} />
                     }
@@ -78,7 +67,7 @@ class App extends Component {
                             handleLogout={() => this.handleLogout()}>
                             <span>{user.displayName}</span>
                             <span className="icon is-small">
-                              <img style={{ borderRadius: '50%' }} src={user.photoURL} />
+                              <img alt="user avatar" style={{ borderRadius: '50%' }} src={user.photoURL} />
                             </span>
                           </DropDown>
                           : <ButtonLogin onClick={() => this.handleLogin()} />
@@ -91,7 +80,6 @@ class App extends Component {
           </div>
         </section>
         <MapContainer google={this.props.google} />
-
       </div>
     );
   }
