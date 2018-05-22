@@ -47,18 +47,18 @@ class App extends Component {
                   <a className="navbar-item">
                     <h1 className="title">pEYU</h1>
                   </a>
-                  <span className="navbar-burger burger" data-target="navbarMenuHeroA">
+                  <div style={{position:'fixed', right:'20px'}} className="navbar-item is-hidden-desktop">  
                     {
                       user ?
                         <DropDown
                           handleLogout={() => this.handleLogout()}>
-                          <img alt="user avatar" style={{ borderRadius: '50%', margin: '10%', width: '80%' }} src={user.photoURL} />
+                          <img alt="user avatar" style={{ borderRadius: '50%'}} src={user.photoURL} />
                         </DropDown>
                         : <ButtonLogin onClick={() => this.handleLogin()} />
                     }
-                  </span>
+                  </div>
                 </div>
-                <div id="navbarMenuHeroA" className="navbar-menu">
+                <div className="navbar-menu">
                   <div className="navbar-end">
                     <span className="navbar-item">
                       {
