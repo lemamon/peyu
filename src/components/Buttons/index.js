@@ -1,11 +1,9 @@
 import React from 'react';
-import loginImg from '../../assets/images/btn-login.png';
+import loginImg from '../../assets/images/google-icon.gif';
 
 export const ButtonLogin = (props) => {
   return (
-    <div {...props}>
-      <img alt="Google SigIn Button" src={loginImg} />
-    </div>
+    <a {...props} className="button"><img alt="Google icon gif" src={loginImg}/> Login</a>
   )
 }
 
