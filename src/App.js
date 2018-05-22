@@ -3,7 +3,6 @@ import { GoogleApiWrapper } from 'google-maps-react'
 import MapContainer from './components/Maps/MapContainer'
 import { ButtonLogin, DropDown } from './components/Buttons/'
 import { firebaseAuth, googleProvider } from './constants/config'
-
 import { LoadingContainer } from './components/Loading'
 
 class App extends Component {

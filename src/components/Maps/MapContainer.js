@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { ref, firebaseAuth } from '../../constants/config';
 import { Map, Marker } from 'google-maps-react';
-import { Modal } from '../Buttons'
+import { Modal } from '../Buttons';
+import { LoadingContainer } from '../Loading'
 
 class MapContainer extends Component {
 
@@ -67,8 +68,8 @@ class MapContainer extends Component {
   }
 
   saveData() {
-    this.setState({ showModal: false});
-    let { occurrence: { author, name, location }} = this.state;
+    this.setState({ showModal: false });
+    let { occurrence: { author, name, location } } = this.state;
 
     let key = loc.push().key;
     let newLoc = {};
@@ -106,18 +107,19 @@ class MapContainer extends Component {
           <div className="control">
             <input className="input" type="text" placeholder="Ponto de refencia" />
             <input className="input" type="text" placeholder="Descricao" />
-              <div className="select">
-                <select>
-                  <option>Select dropdown</option>
-                  <option>With options</option>
-                </select>
-              </div>
+            <div className="select">
+              <select>
+                <option>Select dropdown</option>
+                <option>With options</option>
+              </select>
+            </div>
           </div>
         </Modal>
         {
           locations && google ?
 
             <Map
+              // centerAroundCurrentLocation
               className="card-content"
               style={style.map}
               initialCenter={userLocation}
@@ -138,9 +140,7 @@ class MapContainer extends Component {
               }
             </Map>
             :
-            <div>
-              Loading...
-            </div>
+           <LoadingContainer/>
         }
       </div>
     )
