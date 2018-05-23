@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { ref, firebaseAuth } from '../../constants/config';
-import { Map, Marker } from 'google-maps-react';
+import { Map, Marker, InfoWindow } from 'google-maps-react';
 import { Modal } from '../Buttons';
 import { LoadingContainer } from '../Loading'
 
@@ -8,12 +8,16 @@ class MapContainer extends Component {
 
   state = {
     showModal: false,
+    showingInfoWindow: false,
+    activeMarker: {},
+    selectedPlace: {},
     locations: [],
     occurrence: {},
     userLocation: {
       lat: -3.10719,
       lng: -60.0261
     },
+
   }
 
   componentDidMount() {
@@ -69,7 +73,16 @@ class MapContainer extends Component {
 
   saveData() {
     this.setState({ showModal: false });
-    let { occurrence: { author, name, location } } = this.state;
+    let {
+      type,
+      reference,
+      description,
+      occurrence: {
+        author,
+        name,
+        location
+      }
+    } = this.state;
 
     let key = loc.push().key;
     let newLoc = {};
@@ -79,12 +92,26 @@ class MapContainer extends Component {
       key,
       name,
       author,
-      type: '1',
+      type,
+      reference,
+      description,
     };
 
     loc.update(newLoc);
   }
 
+  onMarkerClick(props, marker, e) {
+    console.log(props)
+    console.log(marker)
+    console.log(e)
+    
+    this.setState({
+      selectedPlace: props,
+      activeMarker: marker,
+      showingInfoWindow: true
+    });
+  }
+  
   handleModal(mod) {
     this.setState({ showModal: mod })
   }
@@ -105,12 +132,14 @@ class MapContainer extends Component {
           <h1>{occurrence.name}</h1>
           <hr />
           <div className="control">
-            <input className="input" type="text" placeholder="Ponto de refencia" />
-            <input className="input" type="text" placeholder="Descricao" />
+            <input onChange={e => this.setState({ reference: e.target.value })} className="input" type="text" placeholder="Ponto de refencia" />
+            <input onChange={e => this.setState({ description: e.target.value })} className="input" type="text" placeholder="Descricao" />
             <div className="select">
-              <select>
-                <option>Select dropdown</option>
-                <option>With options</option>
+              <select onChange={e => this.setState({ type: e.target.value })}>
+                <option>Tipo</option>
+                <option value="1">tipo 1</option>
+                <option value="2">tipo 2</option>
+                <option value="3">tipo 3</option>
               </select>
             </div>
           </div>
@@ -133,14 +162,23 @@ class MapContainer extends Component {
                   <Marker
                     position={location.location}
                     title={location.name}
-                    onClick={() => console.log(location.name)}
+                    occurrence={location}
+                    onClick={this.onMarkerClick.bind(this)}
                     key={idx}
                   />)
                 )
               }
+              <InfoWindow
+                marker={this.state.activeMarker}
+                visible={this.state.showingInfoWindow}>
+                <div>
+                  <h1>{this.state.selectedPlace.title}</h1>
+                  <p>sim</p>
+                </div>
+              </InfoWindow>
             </Map>
             :
-           <LoadingContainer/>
+            <LoadingContainer />
         }
       </div>
     )
