@@ -47,12 +47,12 @@ class MapContainer extends Component {
   }
 
   async mapClicked(mapProps, map, clickEvent) {
-    
+
     this.setState({ showingInfoWindow: false });
-    
+
     if (!firebaseAuth().currentUser) return;
 
-    this.setState({ showModal: true});
+    this.setState({ showModal: true });
 
     let occurrence = {}
 
@@ -70,12 +70,11 @@ class MapContainer extends Component {
     });
 
     this.setState({ occurrence })
-
-    // this.saveData(occurrence)
   }
 
   saveData() {
     this.setState({ showModal: false });
+    
     let {
       type,
       reference,
@@ -115,6 +114,16 @@ class MapContainer extends Component {
     this.setState({ showModal: mod })
   }
 
+  validateInput(e) {
+    let isBlank = (str) => (!str || /^\s*$/.test(str));
+
+    e.target.classList.toggle('is-danger', isBlank(e.target.value));
+    if(!isBlank(e.target.value)) {
+      console.log('sal')
+      this.setState({[e.target.name]:e.target.value}) 
+    }
+  }
+
   render() {
     let { locations, userLocation, showModal, occurrence } = this.state;
     let { google } = this.props ? this.props : {};
@@ -131,11 +140,11 @@ class MapContainer extends Component {
           <h1>{occurrence.name}</h1>
           <hr />
           <div className="control">
-            <input onChange={e => this.setState({ reference: e.target.value })} className="input" type="text" placeholder="Ponto de refencia" />
-            <input onChange={e => this.setState({ description: e.target.value })} className="input" type="text" placeholder="Descricao" />
-            <div className="select">
-              <select onChange={e => this.setState({ type: e.target.value })}>
-                <option>Tipo</option>
+            <input name="reference" className="input" placeholder="Ponto de refencia" style={style.input} type="text" onChange={this.validateInput.bind(this)} />
+            <textarea name="description" className="textarea" placeholder="Descricao" style={style.input} onChange={this.validateInput.bind(this)}/>
+            <div style={style.input} className="select">
+              <select name="type" style={style.select} onChange={this.validateInput.bind(this)}>
+                <option value="">Selecionar tipo da Ocorrência</option>
                 <option value="1">tipo 1</option>
                 <option value="2">tipo 2</option>
                 <option value="3">tipo 3</option>
@@ -194,6 +203,12 @@ const style = {
     margin: '3vh',
     height: '75vh',
   },
+  input:{
+    marginBottom: '8px',
+  },
+  select:{
+    width: '700px',
+  }
 }
 
 const loc = ref.child('locations');
