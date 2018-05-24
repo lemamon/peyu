@@ -3,20 +3,8 @@
   "name": "pEYU",
   "icons": [
     {
-      "src": "icons/peyu-16x16.png",
-      "sizes": "16x16",
-      "type": "image/png"
-    },    {
-      "src": "icons/peyu-24x24.png",
-      "sizes": "24x24",
-      "type": "image/png"
-    },    {
-      "src": "icons/peyu-32x32.png",
-      "sizes": "32x32",
-      "type": "image/png"
-    },    {
       "src": "icons/peyu-64x64.png",
-      "sizes": "64x64",
+      "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/png"
     },
     {
@@ -77,6 +65,6 @@
   ],
   "start_url": "./index.html",
   "display": "standalone",
-  "theme_color": "#000000",
+  "theme_color": "#00DEB2",
   "background_color": "#00DEB2"
 }
