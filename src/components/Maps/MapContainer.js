@@ -10,7 +10,7 @@ class MapContainer extends Component {
     showModal: false,
     showingInfoWindow: false,
     activeMarker: {},
-    selectedPlace: {},
+    selectedPlace: { occurrence: {} },
     locations: [],
     occurrence: {},
     userLocation: {
@@ -47,9 +47,12 @@ class MapContainer extends Component {
   }
 
   async mapClicked(mapProps, map, clickEvent) {
+    
+    this.setState({ showingInfoWindow: false });
+    
     if (!firebaseAuth().currentUser) return;
 
-    this.setState({ showModal: true });
+    this.setState({ showModal: true});
 
     let occurrence = {}
 
@@ -101,17 +104,13 @@ class MapContainer extends Component {
   }
 
   onMarkerClick(props, marker, e) {
-    console.log(props)
-    console.log(marker)
-    console.log(e)
-    
     this.setState({
       selectedPlace: props,
       activeMarker: marker,
       showingInfoWindow: true
     });
   }
-  
+
   handleModal(mod) {
     this.setState({ showModal: mod })
   }
@@ -173,7 +172,9 @@ class MapContainer extends Component {
                 visible={this.state.showingInfoWindow}>
                 <div>
                   <h1>{this.state.selectedPlace.title}</h1>
-                  <p>sim</p>
+                  <p><b>Ponto Referencia:</b> {this.state.selectedPlace.occurrence.reference}</p>
+                  <p><b>Descricao:</b> {this.state.selectedPlace.occurrence.description}</p>
+                  <p><b>Tipo:</b> {this.state.selectedPlace.occurrence.type}</p>
                 </div>
               </InfoWindow>
             </Map>
