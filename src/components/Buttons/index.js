@@ -1,9 +1,9 @@
 import React from 'react';
-import loginImg from '../../assets/images/google-icon.gif';
+import loginImg from '../../assets/images/google-icon.webp';
 
 export const ButtonLogin = (props) => {
   return (
-    <a {...props} className="button"><img alt="Google icon gif" src={loginImg}/> Login</a>
+    <a {...props} className="button"><img style={{margin:'2px'}} alt="Google icon webp" src={loginImg}/>Login</a>
   )
 }
 
