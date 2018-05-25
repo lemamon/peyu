@@ -19,9 +19,9 @@ export const DropDown = (props) => {
 
   const handleDropDown = () => {
     let els = document.querySelectorAll('.dropdown');
-    els.forEach(el => {
-      el.classList.toggle('is-active', !el.classList.contains('is-active'));
-    })
+    els.forEach(el => ( 
+      el.classList.toggle('is-active', !el.classList.contains('is-active'))
+    ))
   }
 
   return (

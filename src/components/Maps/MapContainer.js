@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { ref, firebaseAuth } from '../../constants/config';
 import { Map, Marker, InfoWindow } from 'google-maps-react';
 import { Modal } from '../Buttons';
-import { LoadingContainer } from '../Loading'
+import { LoadingContainer } from '../Loading';
 
 class MapContainer extends Component {
 
