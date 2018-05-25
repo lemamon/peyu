@@ -17,7 +17,6 @@ class MapContainer extends Component {
       lat: -3.10719,
       lng: -60.0261
     },
-
   }
 
   componentDidMount() {
@@ -74,7 +73,7 @@ class MapContainer extends Component {
 
   saveData() {
     this.setState({ showModal: false });
-    
+
     let {
       type,
       reference,
@@ -115,12 +114,11 @@ class MapContainer extends Component {
   }
 
   validateInput(e) {
-    let isBlank = (str) => (!str || /^\s*$/.test(str));
+    const isBlank = (str) => (!str || /^\s*$/.test(str));
 
     e.target.classList.toggle('is-danger', isBlank(e.target.value));
-    if(!isBlank(e.target.value)) {
-      console.log('sal')
-      this.setState({[e.target.name]:e.target.value}) 
+    if (!isBlank(e.target.value)) {
+      this.setState({ [e.target.name]: e.target.value })
     }
   }
 
@@ -141,13 +139,13 @@ class MapContainer extends Component {
           <hr />
           <div className="control">
             <input name="reference" className="input" placeholder="Ponto de refencia" style={style.input} type="text" onChange={this.validateInput.bind(this)} />
-            <textarea name="description" className="textarea" placeholder="Descricao" style={style.input} onChange={this.validateInput.bind(this)}/>
+            <textarea name="description" className="textarea" placeholder="Descricao" style={style.input} onChange={this.validateInput.bind(this)} />
             <div style={style.input} className="select">
               <select name="type" style={style.select} onChange={this.validateInput.bind(this)}>
                 <option value="">Selecionar tipo da Ocorrência</option>
-                <option value="1">tipo 1</option>
-                <option value="2">tipo 2</option>
-                <option value="3">tipo 3</option>
+                {types.map((type, idx) => (
+                  <option key={idx} value={idx}>{type}</option>
+                ))}
               </select>
             </div>
           </div>
@@ -183,7 +181,7 @@ class MapContainer extends Component {
                   <h1>{this.state.selectedPlace.title}</h1>
                   <p><b>Ponto Referencia:</b> {this.state.selectedPlace.occurrence.reference}</p>
                   <p><b>Descricao:</b> {this.state.selectedPlace.occurrence.description}</p>
-                  <p><b>Tipo:</b> {this.state.selectedPlace.occurrence.type}</p>
+                  <p><b>Tipo:</b> {types[this.state.selectedPlace.occurrence.type]}</p>
                 </div>
               </InfoWindow>
             </Map>
@@ -203,13 +201,23 @@ const style = {
     margin: '3vh',
     height: '75vh',
   },
-  input:{
+  input: {
     marginBottom: '8px',
   },
-  select:{
+  select: {
     width: '700px',
   }
 }
+
+const types = [
+  'Roubo',
+  'Furto',
+  'Latrocínio',
+  'Roubo/furto de veículos',
+  'Homicídios',
+  'Estupro',
+  'Agressão',
+];
 
 const loc = ref.child('locations');
 
