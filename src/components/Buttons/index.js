@@ -20,11 +20,7 @@ export const DropDown = (props) => {
   const handleDropDown = () => {
     let els = document.querySelectorAll('.dropdown');
     els.forEach(el => {
-      if (el.classList.contains('is-active')) {
-        el.classList.remove('is-active');
-      } else {
-        el.classList.add('is-active');
-      }
+      el.classList.toggle('is-active', !el.classList.contains('is-active'));
     })
   }
 
