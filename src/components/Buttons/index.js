@@ -1,49 +1,60 @@
 import React from 'react';
 import loginImg from '../../assets/images/google-icon.webp';
+import PropTypes from 'prop-types';
 
-export const ButtonLogin = (props) => {
+const ButtonLogin = (props) => {
   return (
-    <a {...props} className="button"><img style={{margin:'2px'}} alt="Google icon webp" src={loginImg}/>Login</a>
-  )
-}
+    <a {...props} className="button"><img style={{ margin: '2px' }} alt="Google icon webp" src={loginImg} />Login</a>
+  );
+};
 
-export const ButtonLogout = (props) => {
 
-  let { text, ...rest } = props;
+const ButtonLogout = (props) => {
+  const { text, ...rest } = props;
+
   return (
     <a {...rest} className="button is-primary">{text}</a>
-  )
-}
+  );
+};
 
-export const DropDown = (props) => {
+ButtonLogout.propTypes = {
+  text: PropTypes.string
+};
+
+
+const DropDown = (props) => {
 
   const handleDropDown = () => {
     let els = document.querySelectorAll('.dropdown');
-    els.forEach(el => ( 
+    els.forEach(el => (
       el.classList.toggle('is-active', !el.classList.contains('is-active'))
-    ))
-  }
+    ));
+  };
 
   return (
     <div className="dropdown is-right">
       <div className="dropdown-trigger">
         <a onClick={handleDropDown} className={props.className} aria-haspopup="true" aria-controls="dropdown-menu3">
-          {props.children}
+          {props.label}
         </a>
       </div>
       <div className="dropdown-menu" id="dropdown-menu3" role="menu">
         <div className="dropdown-content">
-          <a className="dropdown-item">Minhas Ocorrências</a>
-          <a className="dropdown-item">Nova Ocorrência</a>
-          <hr className="dropdown-divider" />
-          <a onClick={() => props.handleLogout()} className="dropdown-item">Sair</a>
+          {props.children}
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export const Modal = (props) => {
+DropDown.propTypes = { 
+  className: PropTypes.string,
+  label: PropTypes.any,
+  children: PropTypes.any,
+};
+
+
+const Modal = (props) => {
 
   return (
     <div className={`modal ${props.show ? 'is-active' : ''}`}>
@@ -57,10 +68,28 @@ export const Modal = (props) => {
           {props.children}
         </section>
         <footer className="modal-card-foot">
-          <button onClick={() => props.onSubmit()} className="button is-success">Salvar</button>
+          {
+            props.onSubmit ?
+              <button onClick={() => props.onSubmit()} className="button is-success">Salvar</button> : ''
+          }
           <button onClick={() => props.handleModal(false)} className="button">Cancelar</button>
         </footer>
       </div>
     </div>
   );
-}
+};
+
+Modal.propTypes = {
+  show: PropTypes.bool,
+  title: PropTypes.string,
+  handleModal: PropTypes.func,
+  children: PropTypes.any,
+  onSubmit: PropTypes.func,
+};
+
+export { 
+  ButtonLogin,
+  ButtonLogout,
+  DropDown,
+  Modal,
+};

@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { ref, firebaseAuth } from '../../constants/config';
+import { firebaseAuth, loc } from '../../constants/config';
 import { Map, Marker, InfoWindow } from 'google-maps-react';
 import { Modal } from '../Buttons';
 import { LoadingContainer } from '../Loading';
+import { types } from '../../constants/';
 
 class MapContainer extends Component {
 
@@ -21,14 +22,19 @@ class MapContainer extends Component {
 
   componentDidMount() {
     this.currentLocation();
-    loc.on('value', snap => {
-      this.setLocations(snap.val());
+    loc.where('active','==', true).onSnapshot((querySnapshot) => {
+      const locations = querySnapshot.docs.map(doc => { 
+        return { id: doc.id, ...doc.data() }; 
+      });
+      this.setState({locations});
     });
   }
 
   setLocations(locations) {
-    locations = Object.keys(locations).map(i => locations[i]);
-    this.setState({ locations });
+    if (locations) {
+      locations = Object.keys(locations).map(i => locations[i]);
+      this.setState({ locations });
+    }
   }
 
   currentLocation() {
@@ -41,7 +47,10 @@ class MapContainer extends Component {
           lng: position.coords.longitude,
         }
       });
-    }, error => console.log(error));
+    }, error => {
+      /* eslint-disable no-alert, no-console */
+      console.error(error);
+    });
 
   }
 
@@ -53,14 +62,14 @@ class MapContainer extends Component {
 
     this.setState({ showModal: true });
 
-    let occurrence = {}
+    let occurrence = {};
 
     occurrence.author = firebaseAuth().currentUser.uid;
 
     occurrence.location = {
       lat: clickEvent.latLng.lat(),
       lng: clickEvent.latLng.lng(),
-    }
+    };
 
     occurrence.name = await getFormattedAddress({
       geocoder: new mapProps.google.maps.Geocoder(),
@@ -68,7 +77,7 @@ class MapContainer extends Component {
       statusOk: mapProps.google.maps.GeocoderStatus.OK,
     });
 
-    this.setState({ occurrence })
+    this.setState({ occurrence });
   }
 
   saveData() {
@@ -85,23 +94,21 @@ class MapContainer extends Component {
       }
     } = this.state;
 
-    let key = loc.push().key;
-    let newLoc = {};
-
-    newLoc[key] = {
+    let newLoc = {
       location,
-      key,
       name,
       author,
       type,
       reference,
       description,
+      active: true,
     };
 
-    loc.update(newLoc);
+    loc.add(newLoc);
+    // loc.update(newLoc);
   }
 
-  onMarkerClick(props, marker, e) {
+  onMarkerClick(props, marker) {
     this.setState({
       selectedPlace: props,
       activeMarker: marker,
@@ -110,7 +117,7 @@ class MapContainer extends Component {
   }
 
   handleModal(mod) {
-    this.setState({ showModal: mod })
+    this.setState({ showModal: mod });
   }
 
   validateInput(e) {
@@ -118,7 +125,7 @@ class MapContainer extends Component {
 
     e.target.classList.toggle('is-danger', isBlank(e.target.value));
     if (!isBlank(e.target.value)) {
-      this.setState({ [e.target.name]: e.target.value })
+      this.setState({ [e.target.name]: e.target.value });
     }
   }
 
@@ -189,7 +196,7 @@ class MapContainer extends Component {
             <LoadingContainer />
         }
       </div>
-    )
+    );
   }
 }
 
@@ -207,19 +214,7 @@ const style = {
   select: {
     width: '700px',
   }
-}
-
-const types = [
-  'Roubo',
-  'Furto',
-  'Latrocínio',
-  'Roubo/furto de veículos',
-  'Homicídios',
-  'Estupro',
-  'Agressão',
-];
-
-const loc = ref.child('locations');
+};
 
 const getFormattedAddress = ({ geocoder, latLng, statusOk }) => {
 
@@ -229,16 +224,16 @@ const getFormattedAddress = ({ geocoder, latLng, statusOk }) => {
     }, (results, status) => {
       if (status === statusOk) {
         if (results[1]) {
-          return resolve(results[1].formatted_address)
+          return resolve(results[1].formatted_address);
         } else {
           return reject('No results found');
         }
       } else {
         return reject('Geocoder failed due to: ' + status);
       }
-    })
-  })
-}
+    });
+  });
+};
 
 export default MapContainer;
 

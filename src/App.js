@@ -1,100 +1,64 @@
-import React, { Component } from 'react';
-import { GoogleApiWrapper } from 'google-maps-react'
-import MapContainer from './components/Maps/MapContainer'
-import { ButtonLogin, DropDown } from './components/Buttons/'
-import { firebaseAuth, googleProvider } from './constants/config'
-import { LoadingContainer } from './components/Loading'
+import React, { Component, Fragment } from 'react';
+import { GoogleApiWrapper } from 'google-maps-react';
+import MapContainer from './components/Maps/MapContainer';
+import { firebaseAuth } from './constants/config';
+import { LoadingContainer } from './components/Loading';
+import { Toolbar } from './components/Toolbar';
+import { Occurrence } from './components/Occurrence';
+import PropTypes from 'prop-types';
 
 class App extends Component {
 
   state = {
-    user: null
+    user: null,
+    showMyOccurrences: false,
   }
 
-  handleLogin() {
-    console.log('login')
-    loginWithGoogle()
-      .catch(err => {
-        console.log(err)
-      });
-  }
-
-  handleLogout() {
-    console.log('logout')
-    logout().then(() => this.setState({ user: null }))
-  }
-
-  componentDidMount() {
+  componentDidMount = () => {
     firebaseAuth().onAuthStateChanged(user => {
       if (user) {
-        this.setState({ user: firebaseAuth().currentUser })
+        this.setState({ user: firebaseAuth().currentUser });
         localStorage.setItem(appTokenKey, user.uid);
+      } else {
+        this.setState({ user: null });
+        localStorage.setItem(appTokenKey, 'appTokenKey');
       }
     });
   }
+
+  handleMyOccurrences = (mod) => {
+    this.setState({ showMyOccurrences: mod });
+  }
+
 
   render() {
     let { user } = this.state;
 
     return (
-      <div>
-        <section className="hero is-primary">
-
-          <div className="hero-head">
-            <nav className="navbar">
-              <div className="container">
-                <div className="navbar-brand">
-                  <a className="navbar-item">
-                    <h1 className="title">pEYU</h1>
-                  </a>
-                  <div style={{position:'fixed', right:'20px'}} className="navbar-item is-hidden-desktop">  
-                    {
-                      user ?
-                        <DropDown
-                          handleLogout={() => this.handleLogout()}>
-                          <img alt="user avatar" style={{ borderRadius: '50%'}} src={user.photoURL} />
-                        </DropDown>
-                        : <ButtonLogin onClick={() => this.handleLogin()} />
-                    }
-                  </div>
-                </div>
-                <div className="navbar-menu">
-                  <div className="navbar-end">
-                    <span className="navbar-item">
-                      {
-                        user ?
-                          <DropDown
-                            className="button"
-                            handleLogout={() => this.handleLogout()}>
-                            <span>{user.displayName}</span>
-                            <span className="icon is-small">
-                              <img alt="user avatar" style={{ borderRadius: '50%' }} src={user.photoURL} />
-                            </span>
-                          </DropDown>
-                          : <ButtonLogin onClick={() => this.handleLogin()} />
-                      }
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </nav>
-          </div>
-        </section>
+      <Fragment>
+        <Toolbar user={user} ctx={this} />
+        <Occurrence
+          user={user}
+          show={this.state.showMyOccurrences}
+          handle={this.handleMyOccurrences.bind(this)}
+        />
         <MapContainer google={this.props.google} />
-      </div>
+      </Fragment>
     );
   }
 }
 
-const appTokenKey = "appToken";
 
-const loginWithGoogle = () => firebaseAuth().signInWithRedirect(googleProvider);
-const logout = () => firebaseAuth().signOut();
+const appTokenKey = 'appToken';
+
+App.propTypes = { 
+  google: PropTypes.func,
+};
 
 export default GoogleApiWrapper({
   apiKey: 'AIzaSyCP0qBpkBupQAlZs9T8wzHEcwYg3k_qW5I',
   LoadingContainer: LoadingContainer,
-})(App)
+})(App);
 
 
 
